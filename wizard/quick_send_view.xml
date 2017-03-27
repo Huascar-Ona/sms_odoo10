@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="view_form_quick_send_wizard">
+            <field name="name">view.form.quick.send.wizard</field>
+            <field name="model">sms.quick_send_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Envío rápido">
+                    <sheet>
+                        <group>
+                            <field name="dests"/>
+                            <field name="dbfile"/>
+                            <field name="text"/>
+                        </group>
+                        <button name="action_process" string="Enviar" type="object"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_sms_quick_send">
+            <field name="name">Envío rápido</field>
+            <field name="res_model">sms.quick_send_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_type">form</field>
+            <field name="target">inline</field>
+        </record>
+
+    </data>
+</odoo>

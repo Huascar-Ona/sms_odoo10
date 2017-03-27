@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!--SMS-->
+        <record id="action_open_sms" model="ir.actions.act_window">
+            <field name="name">Mensajes</field>
+            <field name="res_model">sms.sms</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <record id="sms_tree_view" model="ir.ui.view">
+            <field name="name">sms.tree.view</field>
+            <field name="model">sms.sms</field>
+            <field name="arch" type="xml">
+                <tree string="SMS">
+                    <field name="text"/>
+                    <field name="dest"/>
+                    <field name="create_date"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="sms_form_view" model="ir.ui.view">
+            <field name="name">sms.form.view</field>
+            <field name="model">sms.sms</field>
+            <field name="arch" type="xml">
+                <form string="SMS">
+                    <header>
+                        <button name="action_send" string="Enviar/Reintentar" type="object" states="pending,failed,error"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="dest" readonly="1"/>
+                            <field name="text" readonly="1"/>
+                            <field name="create_date" readonly="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+  
+
+        <!--Templates-->
+        <record id="action_open_templates" model="ir.actions.act_window">
+            <field name="name">Plantillas de Mensaje</field>
+            <field name="res_model">sms.template</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <record id="sms_template_tree_view" model="ir.ui.view">
+            <field name="name">sms.template.tree.view</field>
+            <field name="model">sms.template</field>
+            <field name="arch" type="xml">
+                <tree string="SMS">
+                    <field name="res_model"/>
+                    <field name="text"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="sms_template_form_view" model="ir.ui.view">
+            <field name="name">sms.template.form.view</field>
+            <field name="model">sms.template</field>
+            <field name="arch" type="xml">
+                <form string="Plantilla de mensaje">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <field name="ref_ir_act_window" invisible="1"/>
+                            <button class="oe_stat_button" name="create_action" type="object" attrs="{'invisible':[('ref_ir_act_window','!=',False)]}" icon="fa-plus" help="Display an option on related documents to open a composition wizard with this template">
+                                <div class="o_form_field o_stat_info">
+                                    <span class="o_stat_text">Add</span>
+                                    <span class="o_stat_text">Context Action</span>
+                                </div>
+                            </button>
+                            <button name="unlink_action" type="object" class="oe_stat_button" icon="fa-minus" attrs="{'invisible':[('ref_ir_act_window','=',False)]}" help="Remove the contextual action to use this template on related documents" widget="statinfo">
+                                <div class="o_form_field o_stat_info">
+                                    <span class="o_stat_text">Remove</span>
+                                    <span class="o_stat_text">Context Action</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1><field name="name" required="1"/></h1>
+                            <group>
+                                <field name="res_model" required="1" options="{'no_create': True}"/>
+                            </group>
+                        </div>
+                        <notebook>
+                            <page string="Contenido">
+                                <field name="text"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Server actions -->
+        <record model="ir.ui.view" id="view_server_action_form_template">
+            <field name="name">ir.actions.server.form</field>
+            <field name="model">ir.actions.server</field>
+            <field name="inherit_id" ref="base.view_server_action_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='code']" position="after">
+                    <page string="SMS" autofocus="autofocus"
+                            attrs="{'invisible': [('state', '!=', 'sms')]}">
+                        <p attrs="{'invisible': [('model_id', '!=', False)]}">
+                            Please set the Base Model before setting the action details.
+                        </p>
+                        <group attrs="{'invisible': [('model_id', '=', False)]}">
+                            <field name="sms_template"
+                                    attrs="{'required': [('state', '=', 'sms')]}"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
