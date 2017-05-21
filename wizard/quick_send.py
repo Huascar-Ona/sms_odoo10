@@ -6,9 +6,10 @@ class quick_send_wizard(models.TransientModel):
     _name = "sms.quick_send_wizard"
     _description = "Envio rapido"
 
+    name = fields.Char(u"Identificador de envío")
     text = fields.Text("Texto")
     dests = fields.Text("Destinatarios", help="Separar por saltos de línea")
-    dbfile = fields.Binary("Archivo", help="Puede subir un archivo con los destinatarios")
+    dbfile = fields.Binary("Archivo destinatarios", help="Puede subir un archivo con los destinatarios")
     schedule_date = fields.Datetime("Fecha programada", help="Cuándo se deben empezar a enviar estos mensajes. Dejar en blanco para enviar en este momento")
 
     @api.multi
@@ -29,7 +30,9 @@ class quick_send_wizard(models.TransientModel):
             if number:
                 created.append(Sms.create({
                     'text': self.text,
-                    'dest': number
+                    'dest': number,
+                    'schedule_date': self.schedule_date,
+                    'name': self.name
                 }))
         return {
             'name': 'SMS',

@@ -4,6 +4,8 @@
 
         <menuitem id="sms_quick_send_menu"    name="Envío rápido"           action="action_sms_quick_send" sequence="10" parent="sms_main_menu"/>
         <menuitem id="sms_list_menu"          name="Mensajes"               action="action_open_sms"       sequence="20" parent="sms_main_menu"/>
-        <menuitem id="sms_template_list_menu" name="Plantillas de Mensajes" action="action_open_templates" sequence="30" parent="sms_main_menu"/>
+        <menuitem id="sms_replies_list_menu"  name="Respuestas"             action="action_open_replies"   sequence="30" parent="sms_main_menu"/>
+        <menuitem id="sms_template_list_menu" name="Plantillas de Mensajes" action="action_open_templates" sequence="40" parent="sms_main_menu"/>
+        <menuitem id="sms_credit_menu"        name="Saldo"                  action="action_open_credit"   sequence="50" parent="sms_main_menu"/>
     </data>
 </odoo>

@@ -7,7 +7,7 @@
             <field name="name">Mensajes</field>
             <field name="res_model">sms.sms</field>
             <field name="view_type">form</field>
-            <field name="view_mode">list,form</field>
+            <field name="view_mode">list,form,graph</field>
         </record>
 
         <record id="sms_tree_view" model="ir.ui.view">
@@ -15,11 +15,38 @@
             <field name="model">sms.sms</field>
             <field name="arch" type="xml">
                 <tree string="SMS">
+                    <field name="name"/>
                     <field name="text"/>
                     <field name="dest"/>
                     <field name="create_date"/>
                     <field name="state"/>
+                    <field name="create_uid"/>
                 </tree>
+            </field>
+        </record>
+
+        <record id="sms_search_view" model="ir.ui.view">
+            <field name="name">sms.search.view</field>
+            <field name="model">sms.sms</field>
+            <field name="arch" type="xml">
+                <search string="SMS">
+                    <field name="name"/>
+                    <field name="text"/>
+                    <field name="dest"/>
+                    <field name="create_date"/>
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="sms_graph_view" model="ir.ui.view">
+            <field name="name">sms.graph.view</field>
+            <field name="model">sms.sms</field>
+            <field name="arch" type="xml">
+                <graph string="SMS" stacked="True" type="pivot">
+                    <field name="name" type="row"/>
+                    <field name="state" type="measure"/>
+                </graph>
             </field>
         </record>
 
@@ -34,15 +61,89 @@
                     </header>
                     <sheet>
                         <group>
-                            <field name="dest" readonly="1"/>
-                            <field name="text" readonly="1"/>
+                            <field name="name" attrs="{'readonly':[('state','!=','pending')]}"/>
+                            <field name="dest" attrs="{'readonly':[('state','!=','pending')]}"/>
+                            <field name="text" attrs="{'readonly':[('state','!=','pending')]}"/>
                             <field name="create_date" readonly="1"/>
+                            <field name="write_date" readonly="1"/>
+                            <field name="schedule_date" attrs="{'readonly':[('state','!=','pending')]}"/>
+                            <field name="fail_reason" readonly="1"/>
                         </group>
                     </sheet>
                 </form>
             </field>
         </record>
   
+        <!--Replies-->
+        <record id="action_open_replies" model="ir.actions.act_window">
+            <field name="name">Respuestas</field>
+            <field name="res_model">sms.reply</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">list</field>
+        </record>
+
+        <record id="action_open_reply_wizard" model="ir.actions.act_window">
+            <field name="name">Responder</field>
+            <field name="res_model">sms.reply.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="wizard_reply_form_view" model="ir.ui.view">
+            <field name="name">wizard.reply.form.view</field>
+            <field name="model">sms.reply.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Responder">
+                    <group>
+                        <field name="text"/>
+                    </group>
+                    <footer>
+                        <button name="send" type="object" string="Responder"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="reply_tree_view" model="ir.ui.view">
+            <field name="name">reply.tree.view</field>
+            <field name="model">sms.reply</field>
+            <field name="arch" type="xml">
+                <tree string="SMS">
+                    <field name="name"/>
+                    <field name="text"/>
+                    <field name="sms_id_text"/>
+                    <field name="sms_id_create_uid"/>
+                    <field name="number"/>
+                    <field name="recv_date"/>
+                    <button name="%(action_open_reply_wizard)d" string="Responder" type="action" icon="fa-reply"/>
+                </tree>
+            </field>
+        </record>
+
+        <!--Credit-->
+        <record id="action_open_credit" model="ir.actions.act_window">
+            <field name="name">Saldo</field>
+            <field name="res_model">sms.credit</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">list</field>
+        </record>
+
+        <record id="credit_tree_view" model="ir.ui.view">
+            <field name="name">credit.tree.view</field>
+            <field name="model">sms.credit</field>
+            <field name="arch" type="xml">
+                <tree string="Saldo" editable="top">
+                    <field name="create_date"/>
+                    <field name="amount"/>
+                    <field name="remaining"/>
+                    <field name="pending"/>
+                    <field name="used"/>
+                    <field name="state"/>
+                    <field name="user_id"/>
+                </tree>
+            </field>
+        </record>
 
         <!--Templates-->
         <record id="action_open_templates" model="ir.actions.act_window">

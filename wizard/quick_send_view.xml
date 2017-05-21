@@ -8,10 +8,12 @@
             <field name="arch" type="xml">
                 <form string="Envío rápido">
                     <sheet>
+                        <h1><field name="name" placeholder="Nombre envío"/></h1>
                         <group>
                             <field name="dests"/>
                             <field name="dbfile"/>
-                            <field name="text"/>
+                            <field name="text" placeholder="Escribe tu mensaje aquí"/>
+                            <field name="schedule_date"/>
                         </group>
                         <button name="action_process" string="Enviar" type="object"/>
                     </sheet>
