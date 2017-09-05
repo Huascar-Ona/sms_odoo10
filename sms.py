@@ -63,10 +63,10 @@ class sms(models.Model):
                     raise Exception("Saldo insuficiente")
                 credit.write({'state': 'active'})
             credit.check_credit()
-            url = "http://portalsms.dyndns.org/mensajes/webservice/call/jsonrpc2"
+            url = "http://187.190.106.248:8000/mensajes/webservice/call/jsonrpc2"
             server = jsonrpclib.Server(url)
             span = self.port if self.port > 0 else None
-            resp = server.singleSms(username="integracion@smartsend.com", password="q1w2e3", numero=self.dest, mensaje=self.text, custom_id=self.id, span=span)
+            resp = server.singleSms(username="odoo", password="o9o9deo9", numero=self.dest, mensaje=self.text, custom_id=self.id, span=span)
             self.write({'state':'outgoing', 'fail_reason':''})
             credit.add_pending()
         except Exception as ex:
