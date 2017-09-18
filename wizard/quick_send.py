@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from odoo import api,fields,models
 import base64
+from openpyxl import load_workbook
+import os
+import tempfile
+import magic
 
 class quick_send_wizard(models.TransientModel):
     _name = "sms.quick_send_wizard"
@@ -11,10 +15,14 @@ class quick_send_wizard(models.TransientModel):
     dests = fields.Text("Destinatarios", help="Separar por saltos de línea")
     dbfile = fields.Binary("Archivo destinatarios", help="Puede subir un archivo con los destinatarios")
     schedule_date = fields.Datetime("Fecha programada", help="Cuándo se deben empezar a enviar estos mensajes. Dejar en blanco para enviar en este momento")
+    list_id = fields.Many2one(
+        'sms.list', string='Nombre de Lista',
+        ondelete='cascade', required=False, default=lambda self: self.env['sms.list'].search([], limit=1, order='id desc'))
 
     @api.multi
     def action_process(self):
         Sms = self.env["sms.sms"]
+
         dests = []
         if self.dests:
             for number in self.dests.split("\n"):
@@ -22,18 +30,66 @@ class quick_send_wizard(models.TransientModel):
                 dests.append(number)
         if self.dbfile:
             content = base64.b64decode(self.dbfile)
-            for number in content.split("\n"):
-                number = number.strip()
-                dests.append(number)
+
+            handle, path = tempfile.mkstemp(suffix=".xlsx")
+            with open(path, "w") as f:
+                f.write(content)
+
+            data = {}
+            numeros = []
+
+            try:
+                wb = load_workbook(filename=path)
+            except:
+                raise Exception("El archivo enviado no es un archivo Excel válido o compatible")
+            first_sheet = wb.get_sheet_names()[0]
+            worksheet = wb.get_sheet_by_name(first_sheet)
+            irow = 1
+            for row in worksheet.iter_rows():
+                irow += 1
+                for i,cell in enumerate(row):
+                    if i == 0:
+                        numero = str(cell.value)
+                        numeros.append(numero)
+                        data[numero] = []
+                    else:
+                        data[numeros[-1]].append(cell.value)
+
+            print("Numeros: {} \n Data: {}").format(numeros, data)
+
+            dests = numeros
+
+            def format_msg(data, numero, msg):
+                if numero in data:
+                    row = data[numero]
+                    for datum in row:
+                        if type(datum) not in (str,unicode):
+                            datum = str(datum)
+
+                        msg = msg.replace(u"XXX", datum, 1)
+
+                        if not u"XXX" in msg:
+                            print('No hay XXX')
+                            break
+
+                    return msg
+                else:
+                    return self.text
+
+        if self.list_id:
+            for x in self.env["sms.contact"].search([('list_id','=',self.list_id.id)]):
+                dests.append(x.telefono)
+
         created = []
-        for number in dests:    
+        for number in dests:
             if number:
                 created.append(Sms.create({
-                    'text': self.text,
+                    'text': format_msg(data, number, self.text),
                     'dest': number,
                     'schedule_date': self.schedule_date,
                     'name': self.name
                 }))
+
         return {
             'name': 'SMS',
             'res_model': 'sms.sms',

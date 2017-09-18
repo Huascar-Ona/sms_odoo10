@@ -179,3 +179,26 @@ class sms_action(models.Model):
     def run_action_sms(self, action, eval_context=None):
         self.sms_template.send_sms(self._context.get("active_id"))
         return True
+
+class sms_contact(models.TransientModel):
+    _name = "sms.contact"
+    _description = "Contacto"
+
+    name = fields.Char(u"Identificador de envío")
+    telefono = fields.Char(u"Número de Teléfono")
+    list_id = fields.Many2one(
+        'sms.list', string='Nombre de Lista',
+        ondelete='cascade', required=True, default=lambda self: self.env['sms.list'].search([], limit=1, order='id desc'))
+
+class sms_list(models.TransientModel):
+    _name = "sms.list"
+    _description = "Lista de Contactos"
+
+    name = fields.Char(string="Nombre de Lista")
+    contact_nbr = fields.Integer(compute="_compute_contact_nbr", string='Numero de Contactos')
+
+    def _compute_contact_nbr(self):
+        contacts_data = self.env['sms.contact'].read_group([('list_id', 'in', self.ids)], ['list_id'], ['list_id'])
+        mapped_data = dict([(c['list_id'][0], c['list_id_count']) for c in contacts_data])
+        for mailing_list in self:
+            mailing_list.contact_nbr = mapped_data.get(mailing_list.id, 0)
