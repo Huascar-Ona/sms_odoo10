@@ -14,6 +14,7 @@
                             <field name="dbfile"/>
                             <field name="text" placeholder="Escribe tu mensaje aquí"/>
                             <field name="schedule_date"/>
+                            <field name="list_id"/>
                         </group>
                         <button name="action_process" string="Enviar" type="object"/>
                     </sheet>

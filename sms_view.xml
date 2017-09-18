@@ -145,6 +145,81 @@
             </field>
         </record>
 
+        <!--Contact-->
+        <record id="action_open_contacts" model="ir.actions.act_window">
+            <field name="name">Contactos</field>
+            <field name="res_model">sms.contact</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">list</field>
+        </record>
+
+        <record id="contacts_tree_view" model="ir.ui.view">
+            <field name="name">contacts.tree.view</field>
+            <field name="model">sms.contact</field>
+            <field name="arch" type="xml">
+                <tree string="Contacto" editable="top">
+                    <field name="name"/>
+                    <field name="telefono"/>
+                    <field name="list_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <!--List-->
+        <record id="action_open_lists" model="ir.actions.act_window">
+            <field name="name">Listas</field>
+            <field name="res_model">sms.list</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="lists_tree_view" model="ir.ui.view">
+            <field name="name">lists.tree.view</field>
+            <field name="model">sms.list</field>
+            <field name="priority">10</field>
+            <field name="arch" type="xml">
+                <tree string="Lista">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_view_contacts_from_list">
+            <field name="name">Contactos</field>
+            <field name="res_model">sms.contact</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,graph</field>
+            <field name="context">{'search_default_list_id': active_id, 'search_default_not_opt_out': 1}</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to create a contact.
+              </p>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_sms_list_form">
+            <field name="name">sms.list.form</field>
+            <field name="model">sms.list</field>
+            <field name="arch" type="xml">
+                <form string="Lista de Contactos">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="%(action_view_contacts_from_list)d"
+                                    type="action" icon="fa-user" class="oe_stat_button">
+                                <field name="contact_nbr" string="Contactos" widget="statinfo"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" placeholder="e.g. Consumer Newsletter"/>
+                            </h1>
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
         <!--Templates-->
         <record id="action_open_templates" model="ir.actions.act_window">
             <field name="name">Plantillas de Mensaje</field>
