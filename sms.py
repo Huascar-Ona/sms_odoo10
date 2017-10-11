@@ -63,10 +63,15 @@ class sms(models.Model):
                     raise Exception("Saldo insuficiente")
                 credit.write({'state': 'active'})
             credit.check_credit()
-            url = "http://187.190.106.248:8000/mensajes/webservice/call/jsonrpc2"
+
+            url = self.env["ir.config.parameter"].get_param("sms.url")
             server = jsonrpclib.Server(url)
             span = self.port if self.port > 0 else None
-            resp = server.singleSms(username="odoo", password="o9o9deo9", numero=self.dest, mensaje=self.text, custom_id=self.id, span=span)
+            resp = server.singleSms(
+                username=self.env["ir.config.parameter"].get_param("sms.user"),
+                password=self.env["ir.config.parameter"].get_param("sms.password"),
+                numero=self.dest, mensaje=self.text, custom_id=self.id, span=span)
+
             self.write({'state':'outgoing', 'fail_reason':''})
             credit.add_pending()
         except Exception as ex:
@@ -79,7 +84,7 @@ class sms(models.Model):
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         messages = self.search(['&',
             ('state','not in',('success','failed','outgoing')),
-            '|', 
+            '|',
                 ('schedule_date','=',False),
                 ('schedule_date','<', now)
         ])
@@ -125,7 +130,7 @@ class sms_reply_wizard(models.TransientModel):
 class sms_credit(models.Model):
     _name = "sms.credit"
     _description = "Credito SMS"
-    
+
     state = fields.Selection([('paid','Pagado'),('active','En uso'),('finished','Agotado')], string="Estado", default='paid')
     amount = fields.Integer("Pagados")
     used = fields.Integer("Usados")
@@ -139,12 +144,12 @@ class sms_credit(models.Model):
             return True
         else:
             raise Exception("Saldo insuficiente")
-        
+
     @api.model
     def add_pending(self):
         self.pending += 1
         self.remaining -= 1
-        
+
     @api.model
     def discount(self):
         if self.pending > 0 and self.remaining > 0:
@@ -152,12 +157,12 @@ class sms_credit(models.Model):
             self.used += 1
             if self.remaining == 0:
                 self.state = 'finished'
-    
+
     @api.model
     def refund(self):
          self.pending -= 1
          self.remaining += 1
-                          
+
 class sms_action(models.Model):
     _name = "ir.actions.server"
     _inherit = ['ir.actions.server']
@@ -170,7 +175,7 @@ class sms_action(models.Model):
 
     sms_template = fields.Text("Plantilla del SMS", required=True)
 
-    @api.model    
+    @api.model
     def run_action_sms(self, action, eval_context=None):
         self.sms_template.send_sms(self._context.get("active_id"))
         return True
