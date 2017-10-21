@@ -24,6 +24,7 @@
     # always loaded
     'data': [
         'wizard/quick_send_view.xml',
+        'wizard/sms_credit.xml',
         'sms_view.xml',
         'menus.xml'
     ],

@@ -131,37 +131,28 @@ class sms_credit(models.Model):
     _name = "sms.credit"
     _description = "Credito SMS"
 
-    state = fields.Selection([('paid','Pagado'),('active','En uso'),('finished','Agotado')], string="Estado", default='paid')
-    amount = fields.Integer("Pagados")
-    used = fields.Integer("Usados")
-    remaining = fields.Integer("Restantes")
-    pending = fields.Integer("Pendientes")
-    user_id = fields.Many2one("res.users", string="Usuario")
+    user = fields.Many2one("res.users", string="Usuario", store="True")
+    balance = fields.Integer(string="Saldo", compute="_get_balance", store="True")
+    amount = fields.Integer(string="Abono")
 
-    @api.model
-    def check_credit(self):
-        if self.remaining - self.pending > 0:
-            return True
+    @api.multi
+    def action_credit(self):
+        history = self.env["sms.recharge.history"]
+        credit = self.user.balance + self.amount
+
+        history.create({
+            "beneficiary": self.user.id,
+            "amount": self.amount
+        })
+
+        return self.user.write({"balance": credit})
+
+    @api.onchange('user')
+    def _get_balance(self):
+        if self.user:
+            self.balance = self.user.balance
         else:
-            raise Exception("Saldo insuficiente")
-
-    @api.model
-    def add_pending(self):
-        self.pending += 1
-        self.remaining -= 1
-
-    @api.model
-    def discount(self):
-        if self.pending > 0 and self.remaining > 0:
-            self.pending -= 1
-            self.used += 1
-            if self.remaining == 0:
-                self.state = 'finished'
-
-    @api.model
-    def refund(self):
-         self.pending -= 1
-         self.remaining += 1
+            self.balance = 0
 
 class sms_action(models.Model):
     _name = "ir.actions.server"

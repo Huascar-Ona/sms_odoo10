@@ -73,7 +73,7 @@
                 </form>
             </field>
         </record>
-  
+
         <!--Replies-->
         <record id="action_open_replies" model="ir.actions.act_window">
             <field name="name">Respuestas</field>
@@ -121,7 +121,7 @@
             </field>
         </record>
 
-        <!--Credit-->
+        <!--Credit
         <record id="action_open_credit" model="ir.actions.act_window">
             <field name="name">Saldo</field>
             <field name="res_model">sms.credit</field>
@@ -143,7 +143,7 @@
                     <field name="user_id"/>
                 </tree>
             </field>
-        </record>
+        </record>-->
 
         <!--Templates-->
         <record id="action_open_templates" model="ir.actions.act_window">
