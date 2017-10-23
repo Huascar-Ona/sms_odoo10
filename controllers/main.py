@@ -13,11 +13,6 @@ class SmsController(http.Controller):
         state = 'success' if status == 1 else 'failed'
         sms = Sms.browse(res_id)
         sms.write({'state': state, 'port': port})
-        credit = http.request.env["sms.credit"].search([('user_id', '=', sms.create_uid.id),('state','=','active')])
-        if status == 1:
-            credit.discount()
-        else:
-            credit.refund()
         return "ok"
 
     @http.route('/api/on_receive', auth='public', type='json', methods=['POST'], csrf=False)

@@ -56,24 +56,17 @@ class sms(models.Model):
     @api.model
     def send(self):
         try:
-            credit = self.env["sms.credit"].search([('user_id','=',self._uid),('state','=','active')], limit=1)
-            if not credit:
-                credit = self.env["sms.credit"].search([('user_id','=',self._uid),('state','=','paid')], order='create_date asc', limit=1)
-                if not credit:
-                    raise Exception("Saldo insuficiente")
-                credit.write({'state': 'active'})
-            credit.check_credit()
-
-            url = self.env["ir.config.parameter"].get_param("sms.url")
+            if self.env.user.balance <= 0:
+                raise Exception("Saldo insuficiente")
+            url = self.env["ir.config_parameter"].get_param("sms.url")
             server = jsonrpclib.Server(url)
             span = self.port if self.port > 0 else None
             resp = server.singleSms(
-                username=self.env["ir.config.parameter"].get_param("sms.user"),
-                password=self.env["ir.config.parameter"].get_param("sms.password"),
+                username=self.env["ir.config_parameter"].get_param("sms.user"),
+                password=self.env["ir.config_parameter"].get_param("sms.password"),
                 numero=self.dest, mensaje=self.text, custom_id=self.id, span=span)
-
+            self.env["res.users"].browse(self.env.uid).write({'balance': self.env.user.balance - 1})   
             self.write({'state':'outgoing', 'fail_reason':''})
-            credit.add_pending()
         except Exception as ex:
             self.write({'state':'error', 'fail_reason': ex.message or repr(ex)})
         return True
@@ -127,41 +120,33 @@ class sms_reply_wizard(models.TransientModel):
         })
         return True
 
-class sms_credit(models.Model):
+class sms_credit(models.TransientModel):
     _name = "sms.credit"
     _description = "Credito SMS"
 
-    state = fields.Selection([('paid','Pagado'),('active','En uso'),('finished','Agotado')], string="Estado", default='paid')
-    amount = fields.Integer("Pagados")
-    used = fields.Integer("Usados")
-    remaining = fields.Integer("Restantes")
-    pending = fields.Integer("Pendientes")
-    user_id = fields.Many2one("res.users", string="Usuario")
+    user = fields.Many2one("res.users", string="Usuario", store="True")
+    balance = fields.Integer(string="Saldo", compute="_get_balance", store="True")
+    amount = fields.Integer(string="Abono")
 
-    @api.model
-    def check_credit(self):
-        if self.remaining - self.pending > 0:
-            return True
+    @api.multi
+    def action_credit(self):
+        history = self.env["sms.recharge.history"]
+        credit = self.user.balance + self.amount
+
+        history.create({
+            "beneficiary": self.user.id,
+            "amount": self.amount
+        })
+
+        self.user.write({"balance": credit})
+        return True
+
+    @api.onchange('user')
+    def _get_balance(self):
+        if self.user:
+            self.balance = self.user.balance
         else:
-            raise Exception("Saldo insuficiente")
-
-    @api.model
-    def add_pending(self):
-        self.pending += 1
-        self.remaining -= 1
-
-    @api.model
-    def discount(self):
-        if self.pending > 0 and self.remaining > 0:
-            self.pending -= 1
-            self.used += 1
-            if self.remaining == 0:
-                self.state = 'finished'
-
-    @api.model
-    def refund(self):
-         self.pending -= 1
-         self.remaining += 1
+            self.balance = 0
 
 class sms_action(models.Model):
     _name = "ir.actions.server"
@@ -180,7 +165,7 @@ class sms_action(models.Model):
         self.sms_template.send_sms(self._context.get("active_id"))
         return True
 
-class sms_contact(models.TransientModel):
+class sms_contact(models.Model):
     _name = "sms.contact"
     _description = "Contacto"
 
@@ -190,7 +175,7 @@ class sms_contact(models.TransientModel):
         'sms.list', string='Nombre de Lista',
         ondelete='cascade', required=True, default=lambda self: self.env['sms.list'].search([], limit=1, order='id desc'))
 
-class sms_list(models.TransientModel):
+class sms_list(models.Model):
     _name = "sms.list"
     _description = "Lista de Contactos"
 

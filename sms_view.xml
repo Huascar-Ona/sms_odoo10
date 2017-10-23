@@ -73,7 +73,7 @@
                 </form>
             </field>
         </record>
-  
+
         <!--Replies-->
         <record id="action_open_replies" model="ir.actions.act_window">
             <field name="name">Respuestas</field>
@@ -121,7 +121,7 @@
             </field>
         </record>
 
-        <!--Credit-->
+        <!--Credit
         <record id="action_open_credit" model="ir.actions.act_window">
             <field name="name">Saldo</field>
             <field name="res_model">sms.credit</field>
@@ -143,7 +143,7 @@
                     <field name="user_id"/>
                 </tree>
             </field>
-        </record>
+        </record>-->
 
         <!--Contact-->
         <record id="action_open_contacts" model="ir.actions.act_window">
@@ -297,5 +297,24 @@
                 </xpath>
             </field>
         </record>
+
+
+        <!-- Users -->
+        <record model="ir.ui.view" id="users_form_view">
+            <field name="name">users.form.view</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="SMS">
+                        <group>
+                            <field name="balance" readonly="1"/>
+                            <field name="parent_id" string="Padre"/>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
     </data>
 </odoo>

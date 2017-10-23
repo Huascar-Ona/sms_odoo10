@@ -2,12 +2,13 @@
     <data>
         <menuitem id="sms_main_menu" name="SMS" sequence="10" parent="" web_icon="sms,static/description/icon.png"/>
 
-        <menuitem id="sms_quick_send_menu"    name="Envío rápido"           action="action_sms_quick_send" sequence="10" parent="sms_main_menu"/>
+        <menuitem id="sms_quick_send_menu"    name="Envío"           action="action_sms_quick_send" sequence="10" parent="sms_main_menu"/>
         <menuitem id="sms_list_menu"          name="Mensajes"               action="action_open_sms"       sequence="20" parent="sms_main_menu"/>
         <menuitem id="sms_replies_list_menu"  name="Respuestas"             action="action_open_replies"   sequence="30" parent="sms_main_menu"/>
-        <menuitem id="sms_template_list_menu" name="Plantillas de Mensajes" action="action_open_templates" sequence="40" parent="sms_main_menu"/>
-        <menuitem id="sms_contacts_list_menu" name="Contacto"               action="action_open_contacts"  sequence="50" parent="sms_main_menu"/>
-        <menuitem id="sms_lists_list_menu"    name="Listas"                 action="action_open_lists"     sequence="60" parent="sms_main_menu"/>
-        <menuitem id="sms_credit_menu"        name="Saldo"                  action="action_open_credit"    sequence="70" parent="sms_main_menu"/>
+        <!--<menuitem id="sms_template_list_menu" name="Plantillas de Mensajes" action="action_open_templates" sequence="40" parent="sms_main_menu"/>-->
+        <menuitem id="sms_contacts_list_menu" name="Contactos"               action="action_open_contacts"  sequence="50" parent="sms_main_menu"/>
+        <menuitem id="sms_lists_list_menu"    name="Listas de contactos"      action="action_open_lists"     sequence="60" parent="sms_main_menu"/>
+        <menuitem id="sms_credit_menu"        name="Abonar"                 action="action_credit"         sequence="70" parent="sms_main_menu" groups="base.group_system"/>
+        <menuitem id="sms_creditson_menu"     name="Transferir"            action="action_creditsons"     sequence="80" parent="sms_main_menu"/>
     </data>
 </odoo>

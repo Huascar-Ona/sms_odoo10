@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="view_form_credit_wizard">
+            <field name="name">view.form.credit.wizard</field>
+            <field name="model">sms.credit</field>
+            <field name="arch" type="xml">
+                <form string="Envío rápido">
+                    <sheet>
+                        <group>
+                            <field name="user"/>
+                            <field name="balance" readonly="1"/>
+                            <field name="amount" placeholder="Ingrese cantidad a mandar"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_credit" string="Abonar" type="object"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_credit">
+            <field name="name">Abonar Saldo</field>
+            <field name="res_model">sms.credit</field>
+            <field name="view_mode">form</field>
+            <field name="view_type">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_form_users_wizard">
+            <field name="name">view.form.users.wizard</field>
+            <field name="model">sms.users</field>
+            <field name="arch" type="xml">
+                <form string="Transferencia de saldo">
+                    <sheet>
+                        <group>
+                          <field name="user" readonly="1"/>
+                          <field name="balance" readonly="1"/>
+                        </group>
+                        <field name="sons_lines">
+                          <tree string="Hijos" editable="bottom" create="false" delete="false">
+                            <field name="user" readonly="1"></field>
+                            <field name="balance" readonly="1"></field>
+                            <field name="amount"></field>
+                          </tree>
+                        </field>
+                        <footer>
+                            <button name="transfer" string="Transferir" type="object"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_creditsons">
+            <field name="name">Abonar Saldo</field>
+            <field name="res_model">sms.users</field>
+            <field name="view_id" ref="view_form_users_wizard"></field>
+            <field name="view_mode">form</field>
+            <field name="view_type">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

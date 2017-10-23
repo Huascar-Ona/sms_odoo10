@@ -9,6 +9,7 @@
                 <form string="Envío rápido">
                     <sheet>
                         <h1><field name="name" placeholder="Nombre envío"/></h1>
+                        <h2>Saldo disponible: <field name="balance" readonly="1"/></h2>
                         <group>
                             <field name="dests"/>
                             <field name="dbfile"/>

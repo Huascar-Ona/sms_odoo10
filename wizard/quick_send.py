@@ -11,11 +11,18 @@ class quick_send_wizard(models.TransientModel):
     _description = "Envio rapido"
 
     name = fields.Char(u"Identificador de envío")
+    balance = fields.Integer("Saldo")
     text = fields.Text("Texto")
     dests = fields.Text("Destinatarios", help="Separar por saltos de línea")
     dbfile = fields.Binary("Archivo destinatarios", help="Puede subir un archivo con los destinatarios")
     schedule_date = fields.Datetime("Fecha programada", help="Cuándo se deben empezar a enviar estos mensajes. Dejar en blanco para enviar en este momento")
     list_id = fields.Many2one('sms.list', string='Nombre de Lista')
+
+    @api.model
+    def default_get(self, fields):
+        res = super(quick_send_wizard, self).default_get(fields)
+        res["balance"] = self.env.user.balance
+        return res
 
     @api.multi
     def action_process(self):
