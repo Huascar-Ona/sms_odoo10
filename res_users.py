@@ -67,5 +67,5 @@ class sms_user_lines(models.TransientModel):
 class sms_recharge_history(models.Model):
     _name = 'sms.recharge.history'
 
-    beneficiary = fields.Many2one("res.users", "Usuario", store="True")
-    amount = fields.Many2one(string="Monto", store="True")
+    beneficiary = fields.Many2one("res.users", "Usuario")
+    amount = fields.Integer(string="Monto")

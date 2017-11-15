@@ -56,7 +56,8 @@ class sms(models.Model):
     @api.model
     def send(self):
         try:
-            if self.env.user.balance <= 0:
+            user = self.env["res.users"].browse(self.create_uid.id)
+            if user.balance <= 0:
                 raise Exception("Saldo insuficiente")
             url = self.env["ir.config_parameter"].get_param("sms.url")
             server = jsonrpclib.Server(url)
@@ -65,7 +66,7 @@ class sms(models.Model):
                 username=self.env["ir.config_parameter"].get_param("sms.user"),
                 password=self.env["ir.config_parameter"].get_param("sms.password"),
                 numero=self.dest, mensaje=self.text, custom_id=self.id, span=span)
-            self.env["res.users"].browse(self.env.uid).write({'balance': self.env.user.balance - 1})   
+            user.sudo().write({'balance': user.balance - 1})
             self.write({'state':'outgoing', 'fail_reason':''})
         except Exception as ex:
             self.write({'state':'error', 'fail_reason': ex.message or repr(ex)})
@@ -124,7 +125,7 @@ class sms_credit(models.TransientModel):
     _name = "sms.credit"
     _description = "Credito SMS"
 
-    user = fields.Many2one("res.users", string="Usuario", store="True")
+    user = fields.Many2one("res.users", string="Usuario")
     balance = fields.Integer(string="Saldo", compute="_get_balance", store="True")
     amount = fields.Integer(string="Abono")
 
